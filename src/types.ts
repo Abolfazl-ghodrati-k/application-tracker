@@ -4,5 +4,6 @@ export type Application = {
     website: string;
     description: string;
     status: string;
-    notes: string;
+    note: string;
+    id: string
   }

@@ -1,89 +1,107 @@
-import React, { useState } from 'react';
-import { Application } from '../types';
+import React, { useMemo, useState } from "react";
+import { Application } from "../types";
+import ApplicationItem from "./ApplicationItem";
+import { statuses } from "../constants";
+import { useApplicationContext } from "../hooks/useApplicationContext";
 
 interface ApplicationListProps {
   applications: Application[];
-  onAddNote: (index: number) => void;
 }
 
-const ApplicationList: React.FC<ApplicationListProps> = ({ applications, onAddNote }) => {
-    const [activeTab, setActiveTab] = useState('applied'); // Default active tab
-    const [searchTerm, setSearchTerm] = useState('');
-  
-    const handleTabClick = (status: string) => {
-      setActiveTab(status);
-    };
-  
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(e.target.value);
-    };
-  
-    const filteredApplications = applications
-      .filter((app) => app.status === activeTab)
-      .filter((app) =>
-        app.company.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-  
-    const renderTabs = () => {
-      const statuses = ['applied', 'interviewed', 'offered']; // Add more statuses as needed
-  
-      return (
-        <div className="flex mb-4">
+const ApplicationList: React.FC<ApplicationListProps> = ({ applications }) => {
+  const [activeTab, setActiveTab] = useState("all"); // Default active tab
+  const [searchTerm, setSearchTerm] = useState("");
+  const { deleteApplication, updateApplication, addNoteToApplication } =
+    useApplicationContext();
+
+  const filteredApplications = useMemo(
+    () =>
+      applications
+        .filter((app) => (activeTab === "all" ? app : app.status === activeTab))
+        .filter((app) =>
+          app.company.toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+    [activeTab, applications, searchTerm]
+  );
+
+  const onDeleteApplication = (id: string) => {
+    deleteApplication(id);
+  };
+
+  const handleAddNote = (id: string) => {
+    const note = prompt("Enter a note for the application: ");
+    if (note !== null) {
+      addNoteToApplication(id, note);
+    }
+  };
+
+  const onChangeStatus = (id: string, status: string) => {
+    updateApplication(id, status);
+  };
+
+  const handleTabClick = (status: string) => {
+    setActiveTab(status);
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const renderTabs = () => {
+    return (
+      <div className="flex flex-col items-start sm:flex-row sm:items-center gap-1 mb-4">
+        <span className="mr-2 mt-2 sm:mt-0">Filter by status: </span>
+        <div className="flex items-center gap-1">
           {statuses.map((status) => (
             <button
               key={status}
               onClick={() => handleTabClick(status)}
-              className={`py-2 px-4 my-2 mx-[2px] shadow-sm rounded-md ${
+              className={`py-2 px-4 my-2 shadow-sm rounded-md ${
                 activeTab === status
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-700'
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700"
               } focus:outline-none focus:ring focus:border-blue-300`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
           ))}
         </div>
-      );
-    };
-  
-    const renderApplications = () => {
-      return (
-        <ul>
-          {filteredApplications.map((application, index) => (
-            <li key={index} className="mb-4 p-4 border rounded-md">
-              <h3 className="text-xl font-bold mb-2">{application.company}</h3>
-              <p>Desired Salary: {application.salary}</p>
-              <p>Website: {application.website}</p>
-              <p>Description: {application.description}</p>
-              <p>Status: {application.status}</p>
-              <p>Notes: {application.notes}</p>
-              <button
-                onClick={() => onAddNote(index)}
-                className="bg-green-500 text-white py-1 px-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring focus:border-blue-300"
-              >
-                Add Note
-              </button>
-            </li>
-          ))}
-        </ul>
-      );
-    };
-  
-    return (
-      <div>
-        {renderTabs()}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search by company name"
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full border p-2 rounded-md"
-          />
-        </div>
-        {renderApplications()}
       </div>
     );
   };
-  
-  export default ApplicationList;
+
+  const renderApplications = () => {
+    // const aspectRatio = 1 // width / height which is 1
+    return (
+      <div className="flex items-center justify-start gap-2 flex-wrap">
+        {filteredApplications.map((application) => (
+          <ApplicationItem
+            key={application.id}
+            onAddNote={handleAddNote}
+            onDeleteApplication={onDeleteApplication}
+            onChangeStatus={onChangeStatus}
+            application={application}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full max-w-[1216px]">
+      {renderTabs()}
+      <div className="mb-4 max-w-[520px]">
+        <input
+          type="text"
+          placeholder="Search by company name"
+          value={searchTerm}
+          onChange={handleSearch}
+          className="w-full border p-2 rounded-md"
+        />
+      </div>
+      {renderApplications()}
+    </div>
+  );
+};
+
+export default ApplicationList;
