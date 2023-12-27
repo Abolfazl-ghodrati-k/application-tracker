@@ -6,10 +6,10 @@ import { useApplicationContext } from "../hooks/useApplicationContext";
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { applications, addApplication } = useApplicationContext();
+  const { applications, updateApplication } = useApplicationContext();
 
-  const handleAddApplication = (newApplication: Application) => {
-    addApplication(newApplication)
+  const handleAddApplication = (id: string, newApplication: Application) => {
+    updateApplication(id, newApplication);
     closeModal();
   };
 

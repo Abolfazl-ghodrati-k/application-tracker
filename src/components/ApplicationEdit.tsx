@@ -1,20 +1,18 @@
 import { useParams } from "react-router-dom";
-import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect, useState } from "react";
 import { Application } from "../types";
 import { useNavigate } from "react-router-dom";
 import ApplicationForm from "./ApplicationForm"; // Import the updated form
+import { useApplicationContext } from "../hooks/useApplicationContext";
 
 const ApplicationEdit = () => {
   const { id } = useParams();
-  const [applications, setApplications] = useLocalStorage<Application[]>("applications", []);
+  const { applications, updateApplication } = useApplicationContext();
   const [application, setApplication] = useState<Application | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const foundApplication = applications.find(
-      (app) => app.id === id
-    );
+    const foundApplication = applications.find((app) => app.id === id);
 
     if (foundApplication) {
       setApplication(foundApplication);
@@ -23,12 +21,8 @@ const ApplicationEdit = () => {
     }
   }, [applications, id, navigate]);
 
-  const handleEditApplication = (editedApplication: Application) => {
-    setApplications((prevApplications) =>
-      prevApplications.map((app) =>
-        app.id === id ? editedApplication : app
-      )
-    );
+  const handleEditApplication = (id: string, editedApplication: Application) => {
+    updateApplication(id, editedApplication);
     navigate("/"); // Redirect to the home page after editing
   };
 

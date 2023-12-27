@@ -11,7 +11,7 @@ interface ApplicationListProps {
 const ApplicationList: React.FC<ApplicationListProps> = ({ applications }) => {
   const [activeTab, setActiveTab] = useState("all"); // Default active tab
   const [searchTerm, setSearchTerm] = useState("");
-  const { deleteApplication, updateApplication, addNoteToApplication } =
+  const { deleteApplication, updateStatusApplication, addNoteToApplication } =
     useApplicationContext();
 
   const filteredApplications = useMemo(
@@ -36,7 +36,7 @@ const ApplicationList: React.FC<ApplicationListProps> = ({ applications }) => {
   };
 
   const onChangeStatus = (id: string, status: string) => {
-    updateApplication(id, status);
+    updateStatusApplication(id, status);
   };
 
   const handleTabClick = (status: string) => {

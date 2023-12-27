@@ -13,8 +13,9 @@ interface ApplicationContextValue {
   addApplication: (newApplication: Application) => void;
   updateApplication: (
     id: string,
-    status: string
+    updatedApplication: Partial<Application>
   ) => void;
+  updateStatusApplication: (id: string, status: string) => void;
   deleteApplication: (id: string) => void;
   addNoteToApplication: (id: string, note: string) => void;
 }
@@ -38,7 +39,7 @@ export const ApplicationContextProvider: React.FC<ApplicationContextProps> = ({
     ]);
   };
 
-  const updateApplication = (id: string, status: string) => {
+  const updateStatusApplication = (id: string, status: string) => {
     setApplications((prevApps) =>
       prevApps.map((application) => {
         if (application.id === id) {
@@ -47,6 +48,30 @@ export const ApplicationContextProvider: React.FC<ApplicationContextProps> = ({
         return application;
       })
     );
+  };
+
+  const updateApplication = (
+    id: string,
+    updatedApplication: Partial<Application>
+  ) => {
+    setApplications((prevApplications) => {
+      const index = prevApplications.findIndex(
+        (application) => application.id === id
+      );
+
+      if (index !== -1) {
+        // If the id exists, update the application
+        return prevApplications.map((application, i) =>
+          i === index ? { ...application, ...updatedApplication } : application
+        );
+      } else {
+        // If the id doesn't exist, add the application
+        return [
+          ...prevApplications,
+          { id, ...updatedApplication } as Application,
+        ];
+      }
+    });
   };
 
   const addNoteToApplication = (id: string, note: string) => {
@@ -70,6 +95,7 @@ export const ApplicationContextProvider: React.FC<ApplicationContextProps> = ({
     applications,
     addApplication,
     updateApplication,
+    updateStatusApplication,
     deleteApplication,
     addNoteToApplication,
   };

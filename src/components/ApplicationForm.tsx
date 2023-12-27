@@ -3,7 +3,7 @@ import { Application } from "../types";
 import uuidv4 from "uuidv4";
 
 interface ApplicationFormProps {
-  onAddApplication: (application: Application) => void;
+  onAddApplication: (id: string, application: Application) => void;
   closeModal: () => void;
   initialData?: Application; // Added for editing
 }
@@ -33,7 +33,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({
       id: initialData?.id || uuidv4(), // Use existing ID for editing or generate a new one
     };
 
-    onAddApplication(newApplication);
+    onAddApplication(newApplication.id, newApplication);
 
     setCompany("");
     setSalary("");
