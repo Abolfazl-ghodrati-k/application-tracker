@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import { Application } from "../types";
 import ApplicationItem from "./ApplicationItem";
 import { statuses } from "../constants";
-import { useApplicationContext } from "../hooks/useApplicationContext";
 
 interface ApplicationListProps {
   applications: Application[];
@@ -11,8 +10,6 @@ interface ApplicationListProps {
 const ApplicationList: React.FC<ApplicationListProps> = ({ applications }) => {
   const [activeTab, setActiveTab] = useState("all"); // Default active tab
   const [searchTerm, setSearchTerm] = useState("");
-  const { deleteApplication, updateStatusApplication, addNoteToApplication } =
-    useApplicationContext();
 
   const filteredApplications = useMemo(
     () =>
@@ -23,21 +20,6 @@ const ApplicationList: React.FC<ApplicationListProps> = ({ applications }) => {
         ),
     [activeTab, applications, searchTerm]
   );
-
-  const onDeleteApplication = (id: string) => {
-    deleteApplication(id);
-  };
-
-  const handleAddNote = (id: string) => {
-    const note = prompt("Enter a note for the application: ");
-    if (note !== null) {
-      addNoteToApplication(id, note);
-    }
-  };
-
-  const onChangeStatus = (id: string, status: string) => {
-    updateStatusApplication(id, status);
-  };
 
   const handleTabClick = (status: string) => {
     setActiveTab(status);
@@ -77,9 +59,6 @@ const ApplicationList: React.FC<ApplicationListProps> = ({ applications }) => {
         {filteredApplications.map((application) => (
           <ApplicationItem
             key={application.id}
-            onAddNote={handleAddNote}
-            onDeleteApplication={onDeleteApplication}
-            onChangeStatus={onChangeStatus}
             application={application}
           />
         ))}

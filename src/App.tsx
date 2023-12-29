@@ -19,6 +19,7 @@ const App: React.FC = () => {
               <Route path="/home" element={<Home />} />
               <Route path="/applications/:id" element={<ApplicationEdit />} />
               <Route path="/not-found" element={<NoMatch />} />
+              <Route path="*" element={<NoMatch />} />
             </Route>
           </Routes>
         </Router>

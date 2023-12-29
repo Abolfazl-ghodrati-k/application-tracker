@@ -6,6 +6,7 @@ import { useUserContext } from "../hooks/useUserContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useApplicationContext } from "../hooks/useApplicationContext";
+import withAuthentication from "../hoc/withAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -28,6 +29,21 @@ const Login = () => {
     }
   };
 
+  const fetchApplications = async (id: string) => {
+    const { data: newApplicationsArray, error: applicationFetchingError } =
+        await supabase
+          .from("Applications")
+          .select("*")
+          .eq("user_id", id);
+
+      if (newApplicationsArray && !applicationFetchingError) {
+        const newApplications = JSON.parse(
+          newApplicationsArray[0].applications
+        );
+        syncApplications(newApplications)
+      }
+  }
+
   const handleSignIn = async () => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -38,21 +54,8 @@ const Login = () => {
       return;
     } else if (data?.user) {
       setUser(data?.user);
-      // Fetching users applications from data base
-      const { data: newApplicationsArray, error: applicationFetchingError } =
-        await supabase
-          .from("Applications")
-          .select("*")
-          .eq("user_id", data.user.id);
-
-      if (newApplicationsArray && !applicationFetchingError) {
-        const newApplications = JSON.parse(
-          newApplicationsArray[0].applications
-        );
-        syncApplications(newApplications)
-      }
+      fetchApplications(data.user.id)
       navigate("/home");
-      console.log("User signed in successfully * ", data);
     }
   };
 
@@ -96,7 +99,7 @@ const Login = () => {
           className="bg-blue-500 text-white p-2 rounded w-full mb-4"
           onClick={handleAuth}
         >
-          {loading ? "loading" : isSignUp ? "Sign Up" : "Login"}
+          {loading ? "loading ..." : isSignUp ? "Sign Up" : "Login"}
         </button>
         <p className="text-center">
           {isSignUp ? "Already have an account? " : "Don't have an account? "}
@@ -112,4 +115,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default withAuthentication(Login);

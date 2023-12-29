@@ -4,6 +4,7 @@ import { Application } from "../types";
 import { useNavigate } from "react-router-dom";
 import ApplicationForm from "./ApplicationForm"; // Import the updated form
 import { useApplicationContext } from "../hooks/useApplicationContext";
+import withAuthentication from "../hoc/withAuth";
 
 const ApplicationEdit = () => {
   const { id } = useParams();
@@ -23,11 +24,11 @@ const ApplicationEdit = () => {
 
   const handleEditApplication = (id: string, editedApplication: Application) => {
     updateApplication(id, editedApplication);
-    navigate("/"); // Redirect to the home page after editing
+    navigate("/home"); // Redirect to the home page after editing
   };
 
   const closeModal = () => {
-    navigate("/");
+    navigate("/home");
   };
 
   return (
@@ -44,4 +45,4 @@ const ApplicationEdit = () => {
   );
 };
 
-export default ApplicationEdit;
+export default withAuthentication(ApplicationEdit);

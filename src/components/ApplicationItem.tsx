@@ -1,20 +1,19 @@
 import { Link } from "react-router-dom";
 import { Application } from "../types";
 import { statuses } from "../constants";
+import { useApplicationContext } from "../hooks/useApplicationContext";
 
 interface ApplicationItemProps {
   application: Application;
-  onAddNote: (id: string) => void;
-  onDeleteApplication: (id: string) => void;
-  onChangeStatus: (id: string, status: string) => void;
 }
 
 const ApplicationItem = ({
-  application: { company, description, note, salary, status, website, id },
-  onAddNote,
-  onDeleteApplication,
-  onChangeStatus,
+  application,
 }: ApplicationItemProps) => {
+  const { company, description, note, salary, status, website, id } =
+    application;
+  const { updateApplication, deleteApplication } = useApplicationContext();
+
   return (
     <Link
       to={`/applications/${id}`}
@@ -25,9 +24,9 @@ const ApplicationItem = ({
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
-          onDeleteApplication(id);
+          deleteApplication(id);
         }}
-        className="delete absolute top-4 right-4 text-[.9rem] text-[red] hover:text-red-600"
+        className="delete absolute top-4 right-4 text-[.9rem] text-[#ffa3a3] hover:text-red-600"
       >
         delete
       </div>
@@ -37,25 +36,34 @@ const ApplicationItem = ({
       <div className="max-w-full truncate pl-2 text-[.95rem] text-[gray]">
         {salary ? salary : "Those Mother fuckerssss"}
       </div>
-      <p className="text-[1.2rem]">Link to Job opt:</p>
-      <div
-        className="max-w-full block truncate pl-2 text-[.95rem] text-[blue] hover:font-semibold transition-all"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const link = website.startsWith("http")
-            ? website
-            : "https://" + website;
-          window.open(link, "_blank");
-        }}
-      >
-        {website}
-      </div>
-      <p className="text-[1.2rem]">Description:</p>
-      <div className="max-w-full truncate pl-2 text-[.95rem] text-[gray]">
-        {description ?? "Not Defined"}
-      </div>
+      {website && (
+        <>
+          <p className="text-[1.2rem]">Link to Job opt:</p>
+          <div
+            className="max-w-full block truncate pl-2 text-[.95rem] text-[blue] hover:font-semibold transition-all"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const link = website.startsWith("http")
+                ? website
+                : "https://" + website;
+              window.open(link, "_blank");
+            }}
+          >
+            {website}
+          </div>
+        </>
+      )}
+      {description && (
+        <>
+          <p className="text-[1.2rem]">Description:</p>
+          <div className="max-w-full truncate pl-2 text-[.95rem] text-[gray]">
+            {description ?? "Not Defined"}
+          </div>
+        </>
+      )}
       <p className="text-[1.2rem]">Status:</p>
+      {/* Status Buttons */}
       <div className="flex items-center space-x-2">
         {statuses.map((statusOption) => (
           <button
@@ -72,22 +80,30 @@ const ApplicationItem = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              onChangeStatus(id, statusOption);
+              updateApplication(id, { ...application, status: statusOption });
             }}
           >
             {statusOption}
           </button>
         ))}
       </div>
-      <p className="text-[1.2rem] mb-2">Note:</p>
-      <div className="max-w-full truncate pl-2 text-[.95rem] text-[gray]">
-        {note ?? "Not Defined"}
-      </div>
+      {note && (
+        <>
+          <p className="text-[1.2rem] mb-2">Note:</p>
+          <div className="max-w-full truncate pl-2 text-[.95rem] text-[gray]">
+            {note ?? "Not Defined"}
+          </div>
+        </>
+      )}
+      {/* No Note */}
       <button
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          onAddNote(id);
+          const newNote = prompt("Enter a note for this Application: ");
+          if (newNote) {
+            updateApplication(id, { ...application, note: newNote });
+          }
         }}
         className="bg-green-500 text-white py-1 px-4 rounded-r-full hover:bg-green-600 
         focus:outline-none focus:ring focus:border-blue-300 mt-3"

@@ -10,14 +10,11 @@ interface ApplicationContextProps {
 
 interface ApplicationContextValue {
   applications: Application[];
-  addApplication: (newApplication: Application) => void;
   updateApplication: (
     id: string,
     updatedApplication: Partial<Application>
   ) => void;
-  updateStatusApplication: (id: string, status: string) => void;
   deleteApplication: (id: string) => void;
-  addNoteToApplication: (id: string, note: string) => void;
   syncApplications: (applications: Application[]) => void;
 }
 
@@ -63,25 +60,6 @@ export const ApplicationContextProvider: React.FC<ApplicationContextProps> = ({
       return [...updatedApplications, ...remainingPreviousApplications];
     });
   };
-  
-
-  const addApplication = (newApplication: Application) => {
-    setApplications((prevApplications) => [
-      ...prevApplications,
-      newApplication,
-    ]);
-  };
-
-  const updateStatusApplication = (id: string, status: string) => {
-    setApplications((prevApps) =>
-      prevApps.map((application) => {
-        if (application.id === id) {
-          return { ...application, status };
-        }
-        return application;
-      })
-    );
-  };
 
   const updateApplication = (
     id: string,
@@ -107,17 +85,6 @@ export const ApplicationContextProvider: React.FC<ApplicationContextProps> = ({
     });
   };
 
-  const addNoteToApplication = (id: string, note: string) => {
-    setApplications((prevApplications) =>
-      prevApplications.map((application) => {
-        if (application.id === id) {
-          application.note = note;
-        }
-        return application;
-      })
-    );
-  };
-
   const deleteApplication = (id: string) => {
     setApplications((prevApplications) =>
       prevApplications.filter((application) => application.id !== id)
@@ -126,12 +93,9 @@ export const ApplicationContextProvider: React.FC<ApplicationContextProps> = ({
 
   const contextValue: ApplicationContextValue = {
     applications,
-    addApplication,
     updateApplication,
     syncApplications,
-    updateStatusApplication,
     deleteApplication,
-    addNoteToApplication,
   };
 
   return (

@@ -2,7 +2,7 @@ import React, { createContext } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { User } from "@supabase/supabase-js";
 
-interface UserContextProps {
+interface UserContextProviderProps {
   children: React.ReactNode;
 }
 
@@ -15,7 +15,7 @@ export const UserContext = createContext<UserContextInterface | undefined>(
   undefined
 );
 
-export const UserContextProvider: React.FC<UserContextProps> = ({
+export const UserContextProvider: React.FC<UserContextProviderProps> = ({
   children,
 }) => {
   const [user, setUser] = useLocalStorage<User>("user", {} as User);
