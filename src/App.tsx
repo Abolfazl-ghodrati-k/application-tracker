@@ -5,6 +5,8 @@ import NoMatch from "./components/NoMatch";
 import { ApplicationContextProvider } from "./contexts/ApplicationContext";
 import Login from "./components/Login";
 import { UserContextProvider } from "./contexts/AuthContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App: React.FC = () => {
   return (
@@ -20,6 +22,7 @@ const App: React.FC = () => {
             </Route>
           </Routes>
         </Router>
+        <ToastContainer />
       </ApplicationContextProvider>
     </UserContextProvider>
   );

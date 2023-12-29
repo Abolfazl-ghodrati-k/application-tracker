@@ -18,6 +18,7 @@ interface ApplicationContextValue {
   updateStatusApplication: (id: string, status: string) => void;
   deleteApplication: (id: string) => void;
   addNoteToApplication: (id: string, note: string) => void;
+  syncApplications: (applications: Application[]) => void;
 }
 
 export const ApplicationContext = createContext<
@@ -31,6 +32,38 @@ export const ApplicationContextProvider: React.FC<ApplicationContextProps> = ({
     "applications",
     []
   );
+
+  const syncApplications = (newApplications: Application[]) => {
+    setApplications((prevApplications) => {
+      // Create a map for quicker access to existing applications by ID
+      const existingApplicationsMap = new Map(
+        prevApplications.map((app) => [app.id, app])
+      );
+  
+      // Update the applications based on their creation time
+      const updatedApplications = newApplications.map((newApp) => {
+        const existingApp = existingApplicationsMap.get(newApp.id);
+  
+        if (existingApp) {
+          // If the ID exists in both arrays, choose the one with the newer creation time
+          return existingApp.created_at > newApp.created_at
+            ? existingApp
+            : newApp;
+        } else {
+          // If the ID doesn't exist in the existing array, add it to the updated array
+          return newApp;
+        }
+      });
+  
+      // Include previous applications that don't have conflicts with new ones
+      const remainingPreviousApplications = prevApplications.filter(
+        (prevApp) => !newApplications.some((newApp) => newApp.id === prevApp.id)
+      );
+  
+      return [...updatedApplications, ...remainingPreviousApplications];
+    });
+  };
+  
 
   const addApplication = (newApplication: Application) => {
     setApplications((prevApplications) => [
@@ -95,6 +128,7 @@ export const ApplicationContextProvider: React.FC<ApplicationContextProps> = ({
     applications,
     addApplication,
     updateApplication,
+    syncApplications,
     updateStatusApplication,
     deleteApplication,
     addNoteToApplication,

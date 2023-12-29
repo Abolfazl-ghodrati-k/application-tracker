@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ApplicationForm from "./ApplicationForm";
 import ApplicationList from "./ApplicationList";
 import { Application } from "../types";
 import { useApplicationContext } from "../hooks/useApplicationContext";
+import { supabase } from "../supabaseClient";
+import { toast } from "react-toastify";
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { applications, updateApplication } = useApplicationContext();
+  const [loading, setLoading] = useState(false);
+  const isInitialRender = useRef(true);
 
   const handleAddApplication = (id: string, newApplication: Application) => {
     updateApplication(id, newApplication);
@@ -21,8 +25,38 @@ const Home = () => {
     setIsModalOpen(false);
   };
 
+  const syncApplications = useCallback(async () => {
+    const user = JSON.parse(localStorage.getItem("user")!);
+
+    if (user.id) {
+      setLoading(true);
+      const { error, status } = await supabase
+        .from("Applications")
+        .update({ applications: JSON.stringify(applications) })
+        .eq("user_id", user.id);
+      setLoading(false);
+      if (!error && status === 204) {
+        toast.success("Updated Successfully! :(");
+      }
+    }
+  }, [applications]);
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      // Skip syncApplications on the first render
+      isInitialRender.current = false;
+      return;
+    }
+    syncApplications();
+  }, [applications, syncApplications]);
+
   return (
-    <div className="bg-gray-100 p-2">
+    <div className="bg-gray-100 p-2 relative">
+      {loading && (
+        <div className="w-full h-full fixed z-10 bg-[rgba(235,235,235,0.56)] flex items-center justify-center">
+          Saving Applications to data base ...
+        </div>
+      )}
       <div className="min-h-screen  flex flex-col items-start max-w-[1216px] 2xl:mt-5 mx-auto justify-start ">
         <div className="flex items-center justify-between w-full gap-3">
           <h1 className="md:text-3xl font-bold">Application Tracker</h1>

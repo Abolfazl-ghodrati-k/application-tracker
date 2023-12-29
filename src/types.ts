@@ -6,4 +6,5 @@ export type Application = {
   status: string;
   note: string;
   id: string;
+  created_at: string
 }

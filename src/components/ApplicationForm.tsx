@@ -30,6 +30,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({
       description,
       status: "applied",
       note: "",
+      created_at: new Date().toISOString(),
       id: initialData?.id || uuidv4(), // Use existing ID for editing or generate a new one
     };
 

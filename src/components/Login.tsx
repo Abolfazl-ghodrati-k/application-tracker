@@ -3,12 +3,17 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useUserContext } from "../hooks/useUserContext";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useApplicationContext } from "../hooks/useApplicationContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { syncApplications } = useApplicationContext();
   const { setUser } = useUserContext();
 
   const handleSignUp = async () => {
@@ -17,7 +22,8 @@ const Login = () => {
       console.log("Error occured during sign up: ", error);
       return;
     } else if (data?.user) {
-      setUser(data?.user);
+      toast("Welcome :)");
+      await handleSignIn();
       console.log("User signed up successfully * ", data);
     }
   };
@@ -32,6 +38,20 @@ const Login = () => {
       return;
     } else if (data?.user) {
       setUser(data?.user);
+      // Fetching users applications from data base
+      const { data: newApplicationsArray, error: applicationFetchingError } =
+        await supabase
+          .from("Applications")
+          .select("*")
+          .eq("user_id", data.user.id);
+
+      if (newApplicationsArray && !applicationFetchingError) {
+        const newApplications = JSON.parse(
+          newApplicationsArray[0].applications
+        );
+        syncApplications(newApplications)
+      }
+      navigate("/home");
       console.log("User signed in successfully * ", data);
     }
   };
